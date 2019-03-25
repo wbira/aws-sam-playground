@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -21,6 +22,10 @@ var (
 	ErrNon200Response = errors.New("Non 200 Response found")
 )
 
+type user struct {
+	Name string
+}
+
 func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	resp, err := http.Get(DefaultHTTPGetAddress)
 	if err != nil {
@@ -35,6 +40,13 @@ func handler(request events.APIGatewayProxyRequest) (events.APIGatewayProxyRespo
 	if err != nil {
 		return events.APIGatewayProxyResponse{}, err
 	}
+	fmt.Printf("Body: %v \n", request.Body)
+	user := user{}
+	err = json.Unmarshal([]byte(request.Body),&user)
+	if err != nil {
+		return events.APIGatewayProxyResponse{}, err
+	}
+	fmt.Printf("Body: %v \n", user.Name)
 
 	if len(ip) == 0 {
 		return events.APIGatewayProxyResponse{}, ErrNoIP
